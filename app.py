@@ -14,7 +14,6 @@ See README.md for the full "deploy so anyone can use it" walkthrough.
 import csv
 import os
 import sys
-import time
 from datetime import datetime, timezone
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
@@ -168,20 +167,6 @@ def render_feedback(idx, msg):
             st.rerun()
 
 
-def stream_words(text, delay=0.012):
-    """
-    Yields the answer word by word so st.write_stream can show a live
-    "typing" effect. The RAG call itself already finished by the time this
-    runs (Groq/Ollama don't stream through this project's simple request
-    calls) -- this is a lightweight, purely visual touch, not real token
-    streaming.
-    """
-    words = text.split(" ")
-    for i, word in enumerate(words):
-        yield word + (" " if i < len(words) - 1 else "")
-        time.sleep(delay)
-
-
 @st.cache_resource
 def get_engine():
     return RagEngine()
@@ -263,30 +248,36 @@ if question:
         st.markdown(question)
 
     with st.chat_message("assistant"):
-        with st.spinner("Thinking..."):
-            try:
-                result = engine.ask(question, sport=selected_sport)
-                answer = result["answer"]
-                sources = result["sources"]
-            except Exception as e:
-                if LLM_BACKEND == "groq":
-                    answer = (
-                        f"Something went wrong talking to Groq: {e}\n\n"
-                        "Check that GROQ_API_KEY is set correctly (env var, "
-                        ".env file, or Streamlit secret) and that the model "
-                        "name in src/config.py is still valid at "
-                        "console.groq.com/docs/models."
-                    )
-                else:
-                    answer = (
-                        f"Something went wrong talking to Ollama: {e}\n\n"
-                        "Make sure Ollama is installed and running (`ollama serve`), "
-                        "and that the model in src/config.py has been pulled "
-                        "(`ollama pull llama3.1:8b`)."
-                    )
-                sources = []
+        sources = []
+        try:
+            # Retrieval (embed the question, vector search, cross-encoder
+            # re-rank) happens here and is quick -- the spinner covers that
+            # brief gap. The LLM call itself is streamed below via
+            # st.write_stream, so the answer appears live, word by word, as
+            # Groq/Ollama actually generate it -- no waiting for the whole
+            # response before anything shows up.
+            with st.spinner("Searching documents..."):
+                sources, answer_chunks = engine.ask_stream(question, sport=selected_sport)
+            answer = st.write_stream(answer_chunks)
+        except Exception as e:
+            if LLM_BACKEND == "groq":
+                answer = (
+                    f"Something went wrong talking to Groq: {e}\n\n"
+                    "Check that GROQ_API_KEY is set correctly (env var, "
+                    ".env file, or Streamlit secret) and that the model "
+                    "name in src/config.py is still valid at "
+                    "console.groq.com/docs/models."
+                )
+            else:
+                answer = (
+                    f"Something went wrong talking to Ollama: {e}\n\n"
+                    "Make sure Ollama is installed and running (`ollama serve`), "
+                    "and that the model in src/config.py has been pulled "
+                    "(`ollama pull llama3.1:8b`)."
+                )
+            sources = []
+            st.markdown(answer)
 
-        st.write_stream(stream_words(answer))
         if sources:
             render_sources(sources)
 

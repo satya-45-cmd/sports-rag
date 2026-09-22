@@ -7,6 +7,8 @@ Can be run directly as a terminal chat for quick testing:
     python src/rag_chat.py
 """
 
+import json
+
 import chromadb
 import ollama
 import requests
@@ -217,6 +219,108 @@ class RagEngine:
         )
         response.raise_for_status()
         return response.json()["choices"][0]["message"]["content"]
+
+    def ask_stream(self, question: str, sport: str = None, k: int = TOP_K, model: str = None):
+        """
+        Like ask(), but returns (sources, chunks) where `chunks` is a
+        generator yielding pieces of the answer as the LLM actually produces
+        them, instead of the whole string at once. This is what makes the
+        Streamlit UI's answers appear "live" rather than showing up all at
+        once after a long pause -- real token streaming, not a replay effect.
+
+        Retrieval happens eagerly before this returns (it's fast -- a vector
+        search plus a small cross-encoder re-rank), so `sources` is ready
+        immediately; only the slower LLM call is streamed.
+        """
+        hits = self.retrieve(question, sport=sport, k=k)
+
+        if not hits:
+            def _no_docs():
+                yield (
+                    "I don't have any indexed documents to answer that from yet. "
+                    "Add files under data/<sport>/ and run `python src/build_index.py`."
+                )
+
+            return [], _no_docs()
+
+        context = self.build_context(hits)
+        user_prompt = f"Context:\n{context}\n\nQuestion: {question}"
+        messages = [
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": user_prompt},
+        ]
+
+        if LLM_BACKEND == "groq":
+            chunks = self._stream_groq(messages, model or GROQ_MODEL)
+        else:
+            chunks = self._stream_ollama(messages, model or OLLAMA_MODEL)
+
+        sources = [
+            {
+                "sport": h["sport"],
+                "source": h["source"],
+                "page": h.get("page"),
+                "text": h["text"],
+                "rerank_score": h.get("rerank_score"),
+            }
+            for h in hits
+        ]
+        return sources, chunks
+
+    def _stream_ollama(self, messages, model):
+        client = ollama.Client(host=OLLAMA_HOST)
+        response = client.chat(model=model, messages=messages, stream=True)
+
+        def _chunks():
+            # Matches ollama-python's own documented streaming pattern
+            # (chunk['message']['content']) -- every chunk has a "message"
+            # key, content is just "" on the final one.
+            for part in response:
+                piece = part["message"]["content"]
+                if piece:
+                    yield piece
+
+        return _chunks()
+
+    def _stream_groq(self, messages, model):
+        if not GROQ_API_KEY:
+            raise RuntimeError(
+                "LLM_BACKEND is set to 'groq' but GROQ_API_KEY is missing. "
+                "Set it as an environment variable, a local .env file, or a "
+                "Streamlit Cloud secret. Get a free key at https://console.groq.com"
+            )
+        response = requests.post(
+            GROQ_API_URL,
+            headers={"Authorization": f"Bearer {GROQ_API_KEY}"},
+            json={"model": model, "messages": messages, "temperature": 0.3, "stream": True},
+            timeout=30,
+            stream=True,
+        )
+        # Raised here, before any chunk is consumed -- an invalid key or
+        # deprecated model name comes back as an immediate 4xx, so callers
+        # can still catch it the same way they'd catch a non-streaming error.
+        response.raise_for_status()
+
+        def _chunks():
+            # Groq's streaming format is Server-Sent Events: each line is
+            # either blank (keep-alive) or "data: <json>", ending with the
+            # sentinel "data: [DONE]".
+            for line in response.iter_lines(decode_unicode=True):
+                if not line or not line.startswith("data: "):
+                    continue
+                payload = line[len("data: "):]
+                if payload.strip() == "[DONE]":
+                    break
+                try:
+                    event = json.loads(payload)
+                except json.JSONDecodeError:
+                    continue
+                delta = event.get("choices", [{}])[0].get("delta", {})
+                piece = delta.get("content")
+                if piece:
+                    yield piece
+
+        return _chunks()
 
 
 def _cli():
