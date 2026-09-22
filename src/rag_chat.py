@@ -305,8 +305,19 @@ class RagEngine:
             # Groq's streaming format is Server-Sent Events: each line is
             # either blank (keep-alive) or "data: <json>", ending with the
             # sentinel "data: [DONE]".
-            for line in response.iter_lines(decode_unicode=True):
-                if not line or not line.startswith("data: "):
+            #
+            # Deliberately NOT using iter_lines(decode_unicode=True) here:
+            # that decodes using requests' guess at the response's encoding,
+            # which for a text/event-stream response with no explicit
+            # charset falls back to Latin-1/ISO-8859-1 -- wrong for Groq's
+            # actual UTF-8 output, and it silently mangled punctuation like
+            # curly apostrophes (showed up as stray "â" characters). Reading
+            # raw bytes and decoding as UTF-8 ourselves avoids that guess.
+            for raw_line in response.iter_lines():
+                if not raw_line:
+                    continue
+                line = raw_line.decode("utf-8")
+                if not line.startswith("data: "):
                     continue
                 payload = line[len("data: "):]
                 if payload.strip() == "[DONE]":
