@@ -14,6 +14,7 @@ See README.md for the full "deploy so anyone can use it" walkthrough.
 import csv
 import os
 import sys
+import time
 from datetime import datetime, timezone
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
@@ -38,7 +39,68 @@ except Exception:
 from config import list_sports, LLM_BACKEND, OLLAMA_MODEL, GROQ_MODEL, CHROMA_DIR
 from rag_chat import RagEngine
 
-st.set_page_config(page_title="Sports Rules & Strategy Bot", page_icon="🏆")
+st.set_page_config(page_title="Sports Rules & Strategy Bot", page_icon="🏆", layout="centered")
+
+# --- Look & feel -----------------------------------------------------------
+# One emoji + one accent color per sport, reused everywhere (the sidebar
+# dropdown, source citations, example questions) so the same sport always
+# reads the same way at a glance. New sport folders you add fall back to a
+# generic medal icon/gray until you give them their own entry here.
+SPORT_ICONS = {
+    "cricket": "🏏",
+    "soccer": "⚽",
+    "basketball": "🏀",
+    "nfl": "🏈",
+    "tennis": "🎾",
+}
+SPORT_COLORS = {
+    "cricket": "#0F766E",
+    "soccer": "#16A34A",
+    "basketball": "#EA580C",
+    "nfl": "#7C3AED",
+    "tennis": "#CA8A04",
+}
+DEFAULT_ICON = "🏅"
+DEFAULT_COLOR = "#475569"
+
+
+def sport_icon(sport: str) -> str:
+    return SPORT_ICONS.get(sport.lower(), DEFAULT_ICON)
+
+
+def sport_color(sport: str) -> str:
+    return SPORT_COLORS.get(sport.lower(), DEFAULT_COLOR)
+
+
+def sport_label(sport: str) -> str:
+    """Used as the selectbox's format_func -- turns 'basketball' into '🏀 Basketball'."""
+    if sport == "All":
+        return "🔎 All sports"
+    return f"{sport_icon(sport)} {sport.capitalize()}"
+
+
+# A little CSS polish -- none of this changes behavior, just spacing/styling.
+# unsafe_allow_html is safe here because the HTML is fixed by us, not built
+# from user input.
+st.markdown(
+    """
+    <style>
+    .block-container { padding-top: 2.5rem; max-width: 850px; }
+    section[data-testid="stSidebar"] button { text-align: left; }
+    .source-badge {
+        display: inline-block;
+        padding: 2px 10px;
+        border-radius: 999px;
+        color: white;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-right: 8px;
+        vertical-align: middle;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
 # First run on a fresh deployment (or a fresh clone) won't have a chroma_db
 # folder yet -- build it automatically instead of making the visitor guess
@@ -72,10 +134,17 @@ def log_feedback(question, answer, sport_filter, rating):
 
 
 def render_sources(sources):
-    with st.expander(f"Sources ({len(sources)})"):
+    with st.expander(f"📚 Sources ({len(sources)})"):
         for s in sources:
-            page_str = f", p.{s['page']}" if s.get("page") else ""
-            st.markdown(f"**{s['sport']} / {s['source']}{page_str}**")
+            page_str = f" · p.{s['page']}" if s.get("page") else ""
+            color = sport_color(s["sport"])
+            icon = sport_icon(s["sport"])
+            st.markdown(
+                f"<span class='source-badge' style='background-color:{color}'>"
+                f"{icon} {s['sport'].capitalize()}</span>"
+                f"<strong>{s['source']}{page_str}</strong>",
+                unsafe_allow_html=True,
+            )
             st.caption(s.get("text", ""))
             st.divider()
 
@@ -99,6 +168,20 @@ def render_feedback(idx, msg):
             st.rerun()
 
 
+def stream_words(text, delay=0.012):
+    """
+    Yields the answer word by word so st.write_stream can show a live
+    "typing" effect. The RAG call itself already finished by the time this
+    runs (Groq/Ollama don't stream through this project's simple request
+    calls) -- this is a lightweight, purely visual touch, not real token
+    streaming.
+    """
+    words = text.split(" ")
+    for i, word in enumerate(words):
+        yield word + (" " if i < len(words) - 1 else "")
+        time.sleep(delay)
+
+
 @st.cache_resource
 def get_engine():
     return RagEngine()
@@ -107,9 +190,9 @@ def get_engine():
 engine = get_engine()
 
 with st.sidebar:
-    st.header("Settings")
+    st.header("⚙️ Settings")
     sports = ["All"] + list_sports()
-    selected_sport = st.selectbox("Filter by sport", sports, index=0)
+    selected_sport = st.selectbox("Filter by sport", sports, index=0, format_func=sport_label)
     st.caption("'All' auto-detects the sport from your question's wording; pick one to force it.")
     if LLM_BACKEND == "groq":
         st.caption(f"Model: `{GROQ_MODEL}` (via Groq's free hosted API)")
@@ -117,7 +200,41 @@ with st.sidebar:
         st.caption(f"Model: `{OLLAMA_MODEL}` (via local Ollama)")
     st.caption("Change the backend/model in src/config.py")
 
-    if st.button("Clear chat"):
+    st.divider()
+
+    with st.expander("ℹ️ How to use this bot"):
+        st.markdown(
+            "- Ask in plain English -- no special syntax needed.\n"
+            "- Leave the sport filter on **All sports** and the bot will "
+            "usually guess the right sport from your wording.\n"
+            "- Every answer has an expandable **Sources** section showing "
+            "exactly which document and page it came from.\n"
+            "- Use 👍 / 👎 under an answer to log feedback for later review."
+        )
+
+    st.divider()
+    st.subheader("💡 Try an example")
+    example_questions = [
+        ("cricket", "What counts as being stumped in cricket?"),
+        ("soccer", "Explain the offside rule in soccer"),
+        ("basketball", "What is traveling in basketball?"),
+        ("nfl", "What is a false start in the NFL?"),
+        ("tennis", "What is a let in tennis?"),
+    ]
+    for sport_key, example_q in example_questions:
+        if st.button(
+            f"{sport_icon(sport_key)} {example_q}",
+            key=f"example_{sport_key}",
+            use_container_width=True,
+        ):
+            st.session_state.pending_question = example_q
+            st.rerun()
+
+    st.divider()
+    asked_count = len(st.session_state.get("messages", [])) // 2
+    st.caption(f"💬 {asked_count} question{'s' if asked_count != 1 else ''} asked this session")
+
+    if st.button("🗑️ Clear chat"):
         st.session_state.messages = []
 
 st.title("🏆 Sports Rules & Strategy Bot")
@@ -134,7 +251,11 @@ for idx, msg in enumerate(st.session_state.messages):
         if msg["role"] == "assistant":
             render_feedback(idx, msg)
 
-question = st.chat_input("Ask a question about the rules or strategy...")
+typed_question = st.chat_input("Ask a question about the rules or strategy...")
+# An example-question button in the sidebar can't fill st.chat_input directly
+# (Streamlit doesn't support pre-filling it), so it stashes the question in
+# session_state instead and we pick it up here as a fallback.
+question = typed_question or st.session_state.pop("pending_question", None)
 
 if question:
     st.session_state.messages.append({"role": "user", "content": question})
@@ -165,7 +286,7 @@ if question:
                     )
                 sources = []
 
-        st.markdown(answer)
+        st.write_stream(stream_words(answer))
         if sources:
             render_sources(sources)
 

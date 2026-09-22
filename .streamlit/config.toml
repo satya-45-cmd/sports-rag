@@ -1,0 +1,12 @@
+# Custom color theme for the Sports Rules & Strategy Bot.
+# This file is safe to commit -- it's just colors, no secrets.
+# Change any value here and restart `streamlit run app.py` to see it update.
+# Full option list: https://docs.streamlit.io/develop/api-reference/configuration/config.toml
+
+[theme]
+base = "light"
+primaryColor = "#0F766E"            # accent: buttons, selected items, focus rings
+backgroundColor = "#FFFFFF"         # main content background
+secondaryBackgroundColor = "#F1F5F9" # sidebar / widget background
+textColor = "#0F172A"
+font = "sans serif"
