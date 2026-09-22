@@ -45,6 +45,9 @@ st.set_page_config(page_title="Sports Rules & Strategy Bot", page_icon="🏆", l
 # dropdown, source citations, example questions) so the same sport always
 # reads the same way at a glance. New sport folders you add fall back to a
 # generic medal icon/gray until you give them their own entry here.
+# Colors are a deliberately muted, ink-like palette (rather than bright
+# primary colors) to match the site's editorial look -- see the CSS block
+# below for the rest of the theme (fonts, cards, etc).
 SPORT_ICONS = {
     "cricket": "🏏",
     "soccer": "⚽",
@@ -53,14 +56,14 @@ SPORT_ICONS = {
     "tennis": "🎾",
 }
 SPORT_COLORS = {
-    "cricket": "#0F766E",
-    "soccer": "#16A34A",
-    "basketball": "#EA580C",
-    "nfl": "#7C3AED",
-    "tennis": "#CA8A04",
+    "cricket": "#1F5C5C",
+    "soccer": "#2F5233",
+    "basketball": "#A65A2E",
+    "nfl": "#4A3F6B",
+    "tennis": "#8A6D1E",
 }
 DEFAULT_ICON = "🏅"
-DEFAULT_COLOR = "#475569"
+DEFAULT_COLOR = "#6B6560"
 
 
 def sport_icon(sport: str) -> str:
@@ -78,24 +81,145 @@ def sport_label(sport: str) -> str:
     return f"{sport_icon(sport)} {sport.capitalize()}"
 
 
-# A little CSS polish -- none of this changes behavior, just spacing/styling.
+# The site's visual theme: a light, editorial look -- warm ivory background,
+# a serif display face for headings (Playfair Display) paired with a clean
+# sans-serif for body text (Inter), a deep burgundy accent for interactive
+# elements, and a thin gold rule for decorative dividers. The actual page
+# background/accent colors come from .streamlit/config.toml (Streamlit's
+# native theme, which also colors built-in widgets like the selectbox and
+# chat input); this CSS layers typography, cards, and hover states on top of
+# that using stable data-testid selectors rather than Streamlit's internal
+# (and frequently-changing) generated class names.
 # unsafe_allow_html is safe here because the HTML is fixed by us, not built
 # from user input.
 st.markdown(
     """
     <style>
-    .block-container { padding-top: 2.5rem; max-width: 850px; }
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap');
+
+    :root {
+        --ink: #221F1B;
+        --muted-ink: #6B6560;
+        --accent: #7A2A2A;
+        --gold: #B8860B;
+        --hairline: rgba(34, 31, 27, 0.12);
+        --card-bg: #FFFFFF;
+    }
+
+    html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
+    .block-container { padding-top: 2.5rem; padding-bottom: 3rem; max-width: 860px; }
+
+    /* -- Hero header --------------------------------------------------- */
+    .hero-mark { font-size: 2rem; line-height: 1; margin-bottom: 0.35rem; }
+    .hero-title {
+        font-family: 'Playfair Display', serif;
+        font-weight: 700;
+        font-size: 2.6rem;
+        letter-spacing: -0.01em;
+        color: var(--ink);
+        margin: 0;
+    }
+    .hero-sub {
+        font-family: 'Inter', sans-serif;
+        color: var(--muted-ink);
+        font-size: 1.02rem;
+        margin-top: 0.35rem;
+    }
+    .hero-rule {
+        border: none;
+        border-top: 2px solid var(--gold);
+        width: 64px;
+        margin: 1.1rem 0 1.8rem 0;
+    }
+
+    /* -- Sidebar --------------------------------------------------------- */
     section[data-testid="stSidebar"] button { text-align: left; }
+    .sidebar-brand {
+        font-family: 'Playfair Display', serif;
+        font-weight: 700;
+        font-size: 1.05rem;
+        letter-spacing: 0.02em;
+        color: var(--ink);
+        text-transform: uppercase;
+        border-bottom: 2px solid var(--gold);
+        padding-bottom: 0.6rem;
+        margin-bottom: 1.1rem;
+    }
+    .section-label {
+        font-family: 'Inter', sans-serif;
+        font-weight: 600;
+        font-size: 0.72rem;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+        color: var(--muted-ink);
+        margin: 0 0 0.5rem 0;
+    }
+    section[data-testid="stSidebar"] .stButton > button {
+        background: transparent;
+        border: none;
+        border-bottom: 1px solid var(--hairline);
+        border-radius: 0;
+        padding: 0.55rem 0.1rem;
+        font-size: 0.88rem;
+        color: var(--ink);
+        transition: color 0.15s ease, padding-left 0.15s ease;
+    }
+    section[data-testid="stSidebar"] .stButton > button:hover {
+        color: var(--accent);
+        padding-left: 0.4rem;
+        background: transparent;
+        border-bottom: 1px solid var(--accent);
+    }
+
+    /* -- Buttons (main area) --------------------------------------------- */
+    .stButton > button {
+        border-radius: 999px;
+        transition: transform 0.12s ease, box-shadow 0.12s ease;
+    }
+    .stButton > button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+    }
+
+    /* -- Chat messages as cards -------------------------------------------- */
+    [data-testid="stChatMessage"] {
+        background: var(--card-bg);
+        border: 1px solid var(--hairline);
+        border-radius: 14px;
+        padding: 0.9rem 1.1rem;
+        margin-bottom: 0.9rem;
+        box-shadow: 0 1px 3px rgba(34, 31, 27, 0.04);
+    }
+
+    /* -- Source citations -------------------------------------------------- */
+    [data-testid="stExpander"] {
+        border: 1px solid var(--hairline);
+        border-radius: 12px;
+        background: var(--card-bg);
+    }
     .source-badge {
         display: inline-block;
-        padding: 2px 10px;
+        padding: 2px 12px;
         border-radius: 999px;
-        color: white;
-        font-size: 0.75rem;
+        color: #FFFFFF;
+        font-size: 0.68rem;
         font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
         margin-right: 8px;
         vertical-align: middle;
     }
+    .source-cite {
+        font-family: 'Inter', sans-serif;
+        font-weight: 500;
+        color: var(--ink);
+    }
+
+    /* -- Misc -------------------------------------------------------------- */
+    hr { border-color: var(--hairline); }
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-thumb { background: var(--hairline); border-radius: 999px; }
+    ::-webkit-scrollbar-track { background: transparent; }
     </style>
     """,
     unsafe_allow_html=True,
@@ -133,7 +257,7 @@ def log_feedback(question, answer, sport_filter, rating):
 
 
 def render_sources(sources):
-    with st.expander(f"📚 Sources ({len(sources)})"):
+    with st.expander(f"Sources ({len(sources)})"):
         for s in sources:
             page_str = f" · p.{s['page']}" if s.get("page") else ""
             color = sport_color(s["sport"])
@@ -141,7 +265,7 @@ def render_sources(sources):
             st.markdown(
                 f"<span class='source-badge' style='background-color:{color}'>"
                 f"{icon} {s['sport'].capitalize()}</span>"
-                f"<strong>{s['source']}{page_str}</strong>",
+                f"<span class='source-cite'>{s['source']}{page_str}</span>",
                 unsafe_allow_html=True,
             )
             st.caption(s.get("text", ""))
@@ -175,9 +299,13 @@ def get_engine():
 engine = get_engine()
 
 with st.sidebar:
-    st.header("⚙️ Settings")
+    st.markdown("<div class='sidebar-brand'>Sports Rules Bot</div>", unsafe_allow_html=True)
+
+    st.markdown("<p class='section-label'>Settings</p>", unsafe_allow_html=True)
     sports = ["All"] + list_sports()
-    selected_sport = st.selectbox("Filter by sport", sports, index=0, format_func=sport_label)
+    selected_sport = st.selectbox(
+        "Filter by sport", sports, index=0, format_func=sport_label, label_visibility="collapsed"
+    )
     st.caption("'All' auto-detects the sport from your question's wording; pick one to force it.")
     if LLM_BACKEND == "groq":
         st.caption(f"Model: `{GROQ_MODEL}` (via Groq's free hosted API)")
@@ -187,7 +315,7 @@ with st.sidebar:
 
     st.divider()
 
-    with st.expander("ℹ️ How to use this bot"):
+    with st.expander("How to use this bot"):
         st.markdown(
             "- Ask in plain English -- no special syntax needed.\n"
             "- Leave the sport filter on **All sports** and the bot will "
@@ -198,7 +326,7 @@ with st.sidebar:
         )
 
     st.divider()
-    st.subheader("💡 Try an example")
+    st.markdown("<p class='section-label'>Try an example</p>", unsafe_allow_html=True)
     example_questions = [
         ("cricket", "What counts as being stumped in cricket?"),
         ("soccer", "Explain the offside rule in soccer"),
@@ -208,7 +336,7 @@ with st.sidebar:
     ]
     for sport_key, example_q in example_questions:
         if st.button(
-            f"{sport_icon(sport_key)} {example_q}",
+            f"{sport_icon(sport_key)}  {example_q}",
             key=f"example_{sport_key}",
             use_container_width=True,
         ):
@@ -217,13 +345,19 @@ with st.sidebar:
 
     st.divider()
     asked_count = len(st.session_state.get("messages", [])) // 2
-    st.caption(f"💬 {asked_count} question{'s' if asked_count != 1 else ''} asked this session")
+    st.caption(f"{asked_count} question{'s' if asked_count != 1 else ''} asked this session")
 
-    if st.button("🗑️ Clear chat"):
+    if st.button("Clear conversation"):
         st.session_state.messages = []
 
-st.title("🏆 Sports Rules & Strategy Bot")
-st.caption("Ask about rules, scoring, or strategy for cricket, soccer, basketball, NFL, or tennis.")
+st.markdown("<div class='hero-mark'>🏆</div>", unsafe_allow_html=True)
+st.markdown("<h1 class='hero-title'>Sports Rules &amp; Strategy</h1>", unsafe_allow_html=True)
+st.markdown(
+    "<p class='hero-sub'>Ask about rules, scoring, or strategy for cricket, soccer, "
+    "basketball, NFL, or tennis — every answer is grounded in the official rulebooks.</p>",
+    unsafe_allow_html=True,
+)
+st.markdown("<hr class='hero-rule'>", unsafe_allow_html=True)
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
