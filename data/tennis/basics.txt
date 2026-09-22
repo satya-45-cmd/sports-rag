@@ -1,0 +1,9 @@
+Tennis Basics: Rules and Strategy Overview
+
+Tennis is played either between two players (singles) or two pairs of players (doubles), who hit a ball back and forth over a net using rackets, trying to land shots the opponent cannot legally return.
+
+Scoring: Points within a game are counted as 15, 30, 40, and game; if both players reach 40, the score is called "deuce," and a player must win two consecutive points from deuce to win the game. A set is won by the first player to win six games, with a margin of at least two games, otherwise a tiebreak is usually played at 6-6. A match is typically won by winning either two out of three sets, or three out of five sets in some men's Grand Slam matches.
+
+Key rules: A serve must land within the diagonally opposite service box; a player gets two attempts (a first and second serve) before losing the point on a "double fault." The ball may bounce once before being returned; if it bounces twice, the point is lost. Hitting the ball into the net or outside the court boundaries also loses the point.
+
+Strategy notes: Players build points around their strengths, such as a powerful serve, a heavy topspin forehand, or strong net play (approaching the net to volley). Surface matters: clay courts slow the ball and favor longer rallies and heavy topspin, while grass and hard courts tend to produce faster points and reward strong serving. In doubles, positioning and communication between partners, especially who covers the net versus the baseline, becomes a central strategic element.

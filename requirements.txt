@@ -1,0 +1,12 @@
+# Everything below is free; the local (Ollama) path needs no API key at all.
+# requests/python-dotenv are only exercised if you switch LLM_BACKEND=groq
+# for a public deployment -- see README.md.
+
+sentence-transformers>=3.0.0   # local embeddings
+chromadb>=0.5.0                # local vector database
+pypdf>=4.0.0                   # PDF text extraction
+cryptography>=41.0.0           # lets pypdf open AES-encrypted PDFs (some official rulebooks use this)
+streamlit>=1.36.0              # chat UI
+ollama>=0.3.0                  # Python client for local Ollama server
+requests>=2.31.0               # calls Groq's API when LLM_BACKEND=groq
+python-dotenv>=1.0.0           # optional: load GROQ_API_KEY from a local .env file

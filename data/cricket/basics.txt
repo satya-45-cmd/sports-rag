@@ -1,0 +1,11 @@
+Cricket Basics: Rules and Strategy Overview
+
+Cricket is played between two teams of eleven players. The core contest is between a bowler and a batter: the bowler delivers the ball toward a set of three stumps called the wicket, and the batter defends the wicket while trying to score runs.
+
+Scoring runs: A batter scores runs by hitting the ball and running between the two wickets, by hitting the ball to the boundary along the ground (four runs), or by hitting the ball over the boundary on the full (six runs). Extra runs can be awarded to the batting side for illegal deliveries such as a no-ball or a wide.
+
+Getting a batter out: The most common dismissals are bowled (the ball hits the stumps), caught (a fielder catches the ball before it touches the ground after the batter hits it), leg before wicket or LBW (the ball would have hit the stumps but is blocked by the batter's leg), run out (a fielder breaks the stumps with the ball while the batter is out of their ground), and stumped (the wicketkeeper breaks the stumps while the batter is out of their crease, usually against spin bowling).
+
+Formats: The three major formats differ mainly in length. Test cricket is played over five days with two innings per side. One Day Internationals (ODIs) limit each side to 50 overs (an over is six legal deliveries). Twenty20 (T20) limits each side to 20 overs and rewards aggressive batting.
+
+Strategy notes: In limited-overs cricket, teams manage a "run rate" — the average runs scored per over needed to reach a target. Bowlers vary pace and spin to deceive batters, and captains set fielding positions (like slip, gully, or deep cover) to either take catches or cut off boundaries depending on the game situation. Powerplays in white-ball cricket restrict the number of fielders allowed outside a inner circle for a set number of overs, usually encouraging aggressive batting early in an innings.

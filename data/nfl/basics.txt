@@ -1,0 +1,9 @@
+American Football (NFL) Basics: Rules and Strategy Overview
+
+American football is played between two teams of eleven players on the field at a time. The offense tries to advance the ball down the field to score, while the defense tries to stop them and gain possession.
+
+Scoring: A touchdown (carrying or catching the ball in the opponent's end zone) is worth six points, followed by a chance at an extra point (one point, via a short kick) or a two-point conversion (two points, via another play from close range). A field goal, kicking the ball through the goalposts, is worth three points. A safety, tackling an opposing ball carrier in their own end zone, is worth two points to the defense.
+
+Key rules: The offense has four attempts, called downs, to advance the ball ten yards; if they succeed, they earn a new set of four downs (a "first down"). If they fail to gain ten yards after three downs, they often punt the ball away on fourth down rather than risk turning it over on downs. A game consists of four 15-minute quarters. Common penalties include holding, false start, and pass interference, each carrying a yardage penalty against the offending team.
+
+Strategy notes: Offenses choose between running plays (handing the ball to a running back) and passing plays (the quarterback throwing to a receiver), and defenses respond with formations designed to stop the run or pressure the passer. Play-calling is heavily situational: teams behave differently on third-and-short versus third-and-long, and clock management (how a team uses timeouts and the game clock) becomes critical in the final minutes of a close game. Special teams units handle kickoffs, punts, and field goals, and can also shift field position or score directly through a return.

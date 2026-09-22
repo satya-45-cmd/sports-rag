@@ -1,0 +1,9 @@
+Soccer (Association Football) Basics: Rules and Strategy Overview
+
+A soccer match is played between two teams of eleven players (including a goalkeeper) on a rectangular pitch, with the objective of putting the ball into the opposing team's goal more times than the opponent over 90 minutes, split into two 45-minute halves.
+
+Key rules: Players may use any part of their body except their hands and arms to control the ball; only the goalkeeper may handle the ball, and only within their own penalty area. Offside is one of the most important laws: an attacking player is offside if they are nearer to the opponent's goal line than both the ball and the second-last opponent at the moment the ball is played to them, unless they are in their own half. Fouls can result in a direct or indirect free kick, and a foul inside the penalty area typically results in a penalty kick. Cautions are shown with a yellow card, and a second yellow or a serious offense results in a red card and ejection from the match.
+
+Set pieces: Free kicks, corner kicks (awarded when the ball goes out over the goal line off a defender), and throw-ins (when the ball goes out over the touchline) restart play after the ball goes out of play or after certain fouls.
+
+Strategy notes: Formations such as 4-4-2, 4-3-3, or 3-5-2 describe how defenders, midfielders, and forwards are arranged, and teams choose formations based on whether they want to prioritize defensive solidity or attacking width. Pressing describes a team's coordinated effort to win the ball back quickly high up the pitch, while a low block describes sitting deep to defend space near one's own goal. Possession-based teams try to control tempo through short passing, while counter-attacking teams look to exploit space quickly after winning the ball.
