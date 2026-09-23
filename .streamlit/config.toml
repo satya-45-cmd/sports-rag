@@ -1,16 +1,17 @@
-# Custom color theme for the Sports Rules & Strategy Bot -- a light,
-# editorial look: warm ivory background, deep burgundy accent, warm charcoal
-# text. The Playfair Display/Inter fonts and card/hover styling live in
-# app.py's CSS block; this file only sets the colors Streamlit's own native
-# widgets (buttons, selectbox, chat input, etc.) use.
+# Custom color theme for the Sports Rules & Strategy Bot -- a dark,
+# cinematic "night game under the floodlights" look: near-black background,
+# a warm amber floodlight accent, and off-white text. The atmosphere (glow
+# gradients, vignette, pill sport selector) and the Playfair Display/Inter
+# fonts live in app.py's CSS block; this file only sets the colors
+# Streamlit's own native widgets (buttons, selectbox, chat input, etc.) use.
 # This file is safe to commit -- it's just colors, no secrets.
 # Change any value here and restart `streamlit run app.py` to see it update.
 # Full option list: https://docs.streamlit.io/develop/api-reference/configuration/config.toml
 
 [theme]
-base = "light"
-primaryColor = "#7A2A2A"             # accent: buttons, selected items, focus rings (deep burgundy)
-backgroundColor = "#FAF7F2"          # main content background (warm ivory)
-secondaryBackgroundColor = "#F1EAD9" # sidebar / widget background (warm cream)
-textColor = "#221F1B"                # warm charcoal, not pure black
+base = "dark"
+primaryColor = "#FFB020"             # accent: buttons, selected items, focus rings (floodlight amber)
+backgroundColor = "#06070A"          # main content background (near-black)
+secondaryBackgroundColor = "#12151B" # sidebar / widget / card background (dark elevated panel)
+textColor = "#F4F1EA"                # warm off-white, not pure white
 font = "sans serif"
